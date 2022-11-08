@@ -1,0 +1,15 @@
+#!/bin/bash
+
+
+AUTO_SETUP_PY_FILE="/home/users/gbg/hanksea/ATChecklist/scripts/load_post_run.py"
+
+AUTO_KICKOFF_FILE="/home/users/gbg/hanksea/ATChecklist/scripts/ZNY_ATCKLST_M.py"
+
+echo "Pushing files ${AUTO_SETUP_PY_FILE} and ${AUTO_KICKOFF_FILE} to the ZOA and ZNY ATChecklist DIST and SCRIPTS folders. . . ."
+
+scp $AUTO_SETUP_PY_FILE /home/users/gbg/hanksea/ATChecklist/ZOA/DIST
+scp $AUTO_KICKOFF_FILE /home/users/gbg/hanksea/ATChecklist/ZOA/SCRIPTS
+scp $AUTO_SETUP_PY_FILE /home/users/gbg/hanksea/ATChecklist/ZNY/DIST
+scp $AUTO_KICKOFF_FILE /home/users/gbg/hanksea/ATChecklist/ZNY/SCRIPTS
+
+exit

@@ -1,0 +1,10 @@
+#!/bin/bash
+
+
+FILE="/ocean21/bootstrap/load_${1}_cfg.com"
+
+if test -f "$FILE"; then
+    echo "Yes"
+else
+    echo "No"
+fi
