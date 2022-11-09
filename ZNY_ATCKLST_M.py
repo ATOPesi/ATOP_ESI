@@ -90,7 +90,11 @@ def main(args=None):
         ]
     
     ZNY_DIL_cmds = [
-	{'cmd' : 'dp_comp.exe'}
+        {'cmd' : 'dp_comp.exe', 'inputs' : [b'sysdown\nY\nexit\n'], 'input_wait': 5, 'log': 'sysdown.log'},
+        {'cmd' : 'dp_comp.exe', 'inputs' : [b'run znydil_config\nsysstart\nexit\n'], 'input_wait': 10, 'log': 'znydil.log'},
+        {'cmd' : 'dp_comp.exe', 'inputs' : [b'run t31_signon.cmd\nexit\n'], 'input_wait': 100, 'log': 'signon.log'},
+        {'cmd' : 'dp_comp.exe', 'inputs' : [b'run t31_znydil.cmd\n'], 'input_wait': 180, 'log': 'dil.log'}
+
 
 	]
 	
