@@ -34,17 +34,29 @@ load_cmd = ''
 
 
 def post_files():
-    #Check which Auto test
-    if test_run == 5:
-        post_cmd = './zny_atchecklist_post_T28 ' + config
+    #Check which Auto test;  2 = ZOA_DIL, 3 = ZNY_DIL, ATC_ZOA = 4, ATC_ZNY = 5
+    if test_run == 2:
+        post_cmd = './zoadil_post_T28 ' + config
+    elif test_run == 3:
+        post_cmd = './t30_POST ' + config
     elif test_run == 4:
         post_cmd = './zoa_atchecklist_post_T28 ' + config
+    elif test_run == 5:
+        post_cmd = './zny_atchecklist_post_T28 ' + config
     
+
     print("Posting files........")
     p = subprocess.Popen(post_cmd, shell=True, stdout=subprocess.PIPE)
-    #print( p.communicate())
+    print( p.communicate())
     p.wait()
-    print(p.returncode)
+    pRc = p.returncode
+    if pRc == 0:
+    #returncode = 0 means successfull subprocess completion
+        print("Post successfull...... \n")
+    else:
+        print("Post was UNsuccessfull..... \n \n \n")
+        
+    
 
 def check_load_file(lp):
     print("checking if load file exists for single box.......")
@@ -74,27 +86,18 @@ def find_load_proc():
         lines = f.read().splitlines()
         #print(lines)
         for i in lines:
+            print("For loop: " + i)    
             #if statement finds the fdps nad mcpp in the config file if there is one and assigns the mcpp string to the 'load_proc' variable and the fdps to the 'fdps' variable
-            if "mcppa101" in lines or "mcppb601" in lines or "mcppa102" in lines or "mcppb602" in lines:
-                if i == "mcppa101":
-                    load_proc = i
-                    
-                elif i == "mcppb102":
-                    load_proc = i
-                 
-                elif i == "mcppa102":
-                    load_proc = i
-                    
-                elif i == "mcppb602":
-                    load_proc = i
-                    
-            elif "fdpsa101" in lines or "fdpsa102" in lines or "fdpsb601" in lines or "fdpsb602" in lines:
-                if i == "fdpsa101" or "fdpsa102" or "fdpsb601" or "fdpsb602":
-                    fdps = i
-            
-            elif len(lines) == 1:
+            if len(lines) == 1:
                 load_proc = i
                 break
+
+            elif "mcpp" in i:
+                load_proc = i    
+                print("mcpp " + i)    
+            elif "fdps" in i:
+                fdps = i
+            
             else:
                 lines.remove(i)
     print ("finished find_load_proc(): " +load_proc)
@@ -131,7 +134,7 @@ def auto_run_py(tr, proc):
     #time.sleep(150)
     COMMAND1 = "cd /ocean21/bootstrap\n"
     COMMAND2 = "python3 ZNY_ATCKLST_M.py " +str(tr)  +"\n"
-    #COMMAND3 = str(tr) + "\n"
+    
     HOST = "atop@"+proc
     print("Loading from........ " +HOST)
     #print("COMMAND3: " + COMMAND3)
@@ -195,7 +198,7 @@ while True:
         break
 
 load_proc,fdps = find_load_proc()
-
+print(load_proc + " : " + fdps)
 #Run appropriate test commands for the user input values 1-5
 if test_run == 1:
     test = "ZAN Clean Run"
@@ -203,15 +206,17 @@ if test_run == 1:
 elif test_run == 2:
     test = "ZOA DIL"
     print(test)
+    post_files()
 elif test_run == 3:
     test= "ZNY DIL"
     print(test)
+    post_files()
 elif test_run == 4:
     test= "ZOA ATC"
     post_files()
     time.sleep(2)
     load_lab()
-    #time.sleep(300)
+    time.sleep(300)
 
     print("Kicking off " + test + "...............\n")
 
