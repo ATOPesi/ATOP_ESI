@@ -1,15 +1,25 @@
 #!/bin/bash
 
 
-AUTO_SETUP_PY_FILE="/home/users/gbg/hanksea/ATChecklist/scripts/load_post_run.py"
+AUTO_SETUP_PY_FILE="${PWD}/load_post_run.py"
 
-AUTO_KICKOFF_FILE="/home/users/gbg/hanksea/ATChecklist/scripts/ZNY_ATCKLST_M.py"
+AUTO_KICKOFF_FILE="${PWD}/ZNY_ATCKLST_M.py"
 
-echo "Pushing files ${AUTO_SETUP_PY_FILE} and ${AUTO_KICKOFF_FILE} to the ZOA and ZNY ATChecklist DIST and SCRIPTS folders. . . ."
+echo -e "Pushing files ${AUTO_SETUP_PY_FILE} and ${AUTO_KICKOFF_FILE} to the ZOA and ZNY ATChecklist DIST and SCRIPTS folders. . . .\n"
 
+#echo $PWD
+#ATC Test folders
 scp $AUTO_SETUP_PY_FILE /home/users/gbg/hanksea/ATChecklist/ZOA/DIST
 scp $AUTO_KICKOFF_FILE /home/users/gbg/hanksea/ATChecklist/ZOA/SCRIPTS
 scp $AUTO_SETUP_PY_FILE /home/users/gbg/hanksea/ATChecklist/ZNY/DIST
 scp $AUTO_KICKOFF_FILE /home/users/gbg/hanksea/ATChecklist/ZNY/SCRIPTS
+
+#DIL Test folders
+scp $AUTO_SETUP_PY_FILE /home/users/gbg/hanksea/ZOA_DIL/DIST
+scp $AUTO_KICKOFF_FILE /home/users/gbg/hanksea/ZOA_DIL/SCRIPTS
+scp $AUTO_SETUP_PY_FILE /home/users/gbg/hanksea/ZNY_DIL/DIST
+scp $AUTO_KICKOFF_FILE /home/users/gbg/hanksea/ZNY_DIL/SCRIPTS
+
+echo -e "DONE....\n"
 
 exit
