@@ -6,6 +6,7 @@ import subprocess
 import sys
 import threading
 import time
+import json
 
 from os import path
 
@@ -38,7 +39,7 @@ def post_files():
     if test_run == 2:
         post_cmd = './zoadil_post_T28 ' + config
     elif test_run == 3:
-        post_cmd = './t30_POST ' + config
+        post_cmd = './t31_POST ' + config
     elif test_run == 4:
         post_cmd = './zoa_atchecklist_post_T28 ' + config
     elif test_run == 5:
@@ -91,25 +92,66 @@ def find_load_proc():
             if len(lines) == 1:
                 load_proc = i
                 break
-
-            elif "mcpp" in i:
+            #needs to be more specific for instances that mutliple MCPs. for instance, ZOA has mcppa101 and mcppa102. needs to be mcppa101 since mcppa102 is the PPP position.
+            elif i.startswith('mcp') and i.endswith('1'):
                 load_proc = i    
-                print("mcpp " + i)    
+                #print("mcpp " + i)    
             elif "fdps" in i:
                 fdps = i
-            
-            else:
-                lines.remove(i)
+    
+    #remove the lines.remove(i). it was skipping lines and it missed FDP for my ZOA config. no need to remove lines, since python will increment on its own. 
+    #also added error handling with empty values of load_proc and fdps
+    if load_proc == "" or fdps == "":
+        print ("Cannot find MCP and FDP in config file.")
+        exit()
     print ("finished find_load_proc(): " +load_proc)
     print ("finished find_load_proc() fdps var is  " + fdps)
     return load_proc, fdps
 
 
 def load_lab():
-        
+
+    if 'mcp' in load_proc:
+        #print ("This is not a single proc test")
+        RELCMD = "echo $(cd /ocean21/bootstrap;pwd -P) | egrep -o '.{1,22}$'"
+        FDPHOST = "atop@"+fdps
+        MCPHOST = "atop@"+load_proc
+        #need to know the release. one way is by checking the mcp ocean21 directory.
+        sshOpen = subprocess.Popen(["ssh", "%s" % FDPHOST , RELCMD ],
+                   shell=False,
+                   stdout=subprocess.PIPE,
+                   stderr=subprocess.PIPE)
+        release = sshOpen.stdout.readlines()
+        release = release[0].decode().replace("\n", "")
+        if release == []:
+            error = sshOpen.stderr.readlines()
+            print (sys.stderr, "ERROR: %s" % error)
+            print ("Could not find the release. Please enter the release you are running.")
+            return False
+        else:
+            print ("")
+            #return True
+            print ("Starting lab on "+ load_proc)
+            loadconfig = config.replace(".config", "")
+            #DOESN'T WORK LOADCMD = "load -conf {} -platform {} -env test -validate off -noconfirm -auto -on" .format(release, loadconfig)
+            LOADCMD = "load -conf {} -platform {} -env test -validate off -noconfirm -dae -recov 3" .format(release, loadconfig)
+            print (LOADCMD)
+            sshLoad = subprocess.Popen(["ssh", "%s" % MCPHOST , LOADCMD ],
+                   shell=False,
+                   stdout=subprocess.PIPE,
+                   stderr=subprocess.PIPE)
+            sshLoad.wait() #I'm not sure if this helped excluding but i did earlier. 
+            #loadresult = sshLoad.stdout.readlines() excl.uding this. let's see if it will help #1:22 PM next would be to get rid of postfile()
+            print ("Please check the MCP to see if it loaded. Hint: Please make sure startvnc is turned on for sbalc01")
+            print ("")
+            return True
+
+
+    #This is used for single proc.     
     print("Load_proc: " + load_proc)
     var = str(check_load_file(load_proc))[2:5]
     print("Var: " + var)
+    exit()
     if var == 'No':
         print("Cannot load_single. Please create a " + "load_" +load_proc + "_cfg.com file and add it to the /ocean21/bootstrap directory and try running script again.")
         sys.exit()
@@ -176,6 +218,7 @@ def unload_lab():
 #Ask user for input for config file name
 while True:
     try:
+        #Suggestion: list all the configs that are found within the current directory instead of manually typing in config.
         config = input("Please enter config file: \n ")
 #Input is "python <script name> <config file name>.config
         if path.isfile(config) == True:
@@ -200,6 +243,9 @@ while True:
 load_proc,fdps = find_load_proc()
 print(load_proc + " : " + fdps)
 #Run appropriate test commands for the user input values 1-5
+
+# Suggestion: instead of defining "test" in each elif, map it before (i think they're called python dictories). 
+# Don't need to do elif each time since they will be running the same commands.
 if test_run == 1:
     test = "ZAN Clean Run"
     print(test)
@@ -207,10 +253,17 @@ elif test_run == 2:
     test = "ZOA DIL"
     print(test)
     post_files()
+    load_lab()
+    time.sleep(300)
+    #print("starting FDP dp_comp.exe commands @ XX:XX ...")
 elif test_run == 3:
     test= "ZNY DIL"
     print(test)
     post_files()
+    load_lab()
+    time.sleep(300)
+    #get system time here. 
+    #print("starting FDP dp_comp.exe commands @ time: XX:XX ...")
 elif test_run == 4:
     test= "ZOA ATC"
     post_files()
