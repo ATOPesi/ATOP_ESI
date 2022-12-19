@@ -9,16 +9,16 @@ echo -e "Pushing files ${AUTO_SETUP_PY_FILE} and ${AUTO_KICKOFF_FILE} to the ZOA
 
 #echo $PWD
 #ATC Test folders
-scp $AUTO_SETUP_PY_FILE /home/users/gbg/hanksea/ATChecklist/ZOA/DIST
-scp $AUTO_KICKOFF_FILE /home/users/gbg/hanksea/ATChecklist/ZOA/SCRIPTS
-scp $AUTO_SETUP_PY_FILE /home/users/gbg/hanksea/ATChecklist/ZNY/DIST
-scp $AUTO_KICKOFF_FILE /home/users/gbg/hanksea/ATChecklist/ZNY/SCRIPTS
+scp $AUTO_SETUP_PY_FILE /home/users/gbg/${USER}/ATChecklist/ZOA/DIST
+scp $AUTO_KICKOFF_FILE /home/users/gbg/${USER}/ATChecklist/ZOA/SCRIPTS
+scp $AUTO_SETUP_PY_FILE /home/users/gbg/${USER}/ATChecklist/ZNY/DIST
+scp $AUTO_KICKOFF_FILE /home/users/gbg/${USER}/ATChecklist/ZNY/SCRIPTS
 
 #DIL Test folders
-scp $AUTO_SETUP_PY_FILE /home/users/gbg/hanksea/ZOA_DIL/DIST
-scp $AUTO_KICKOFF_FILE /home/users/gbg/hanksea/ZOA_DIL/SCRIPTS
-scp $AUTO_SETUP_PY_FILE /home/users/gbg/hanksea/ZNY_DIL/DIST
-scp $AUTO_KICKOFF_FILE /home/users/gbg/hanksea/ZNY_DIL/SCRIPTS
+scp $AUTO_SETUP_PY_FILE /home/users/gbg/${USER}/ZOA_DIL/DIST
+scp $AUTO_KICKOFF_FILE /home/users/gbg/${USER}/ZOA_DIL/SCRIPTS
+scp $AUTO_SETUP_PY_FILE /home/users/gbg/${USER}/ZNY_DIL/DIST
+scp $AUTO_KICKOFF_FILE /home/users/gbg/${USER}/ZNY_DIL/SCRIPTS
 
 echo -e "DONE....\n"
 

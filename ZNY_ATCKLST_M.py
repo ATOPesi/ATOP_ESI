@@ -111,13 +111,22 @@ def main(args=None):
     print("Arg for test_run: "  + str(test_run))
     if test_run == 1:
         test = "ZAN Clean Run"
-        print(test) 
+        #print(test)
+         
     elif test_run == 2:
         test = "ZOA DIL"
-        print(test)
+        #print(test)
+        run_time = 160 * 60
+        for c in  ZOA_DIL_cmds:
+            ecs_command(c)
+
     elif test_run == 3:
         test= "ZNY DIL"
         print(test)
+        run_time = 150 * 60
+        for c in ZNY_DIL_cmds:
+            ecs_command(c)
+
     elif test_run == 4:
         test= "ZOA ATC"
         for c in  ZOA_ATCL_cmds:
