@@ -7,6 +7,7 @@ import sys
 import threading
 import time
 import json
+from datetime import datetime
 
 from os import path
 
@@ -85,23 +86,24 @@ def find_load_proc():
     fdps= '' 
     with open(config) as f:
         lines = f.read().splitlines()
-        #print(lines)
+        print(lines)
         for i in lines:
             print("For loop: " + i)    
             #if statement finds the fdps nad mcpp in the config file if there is one and assigns the mcpp string to the 'load_proc' variable and the fdps to the 'fdps' variable
             if len(lines) == 1:
                 load_proc = i
+                print("YOOO: " + load_proc)
                 break
             #needs to be more specific for instances that mutliple MCPs. for instance, ZOA has mcppa101 and mcppa102. needs to be mcppa101 since mcppa102 is the PPP position.
-            elif i.startswith('mcp') and i.endswith('1'):
+            elif i.startswith('mcp') and i.endswith('1') or 'mcppa101' in i or 'mcppb601' in i:
                 load_proc = i    
                 #print("mcpp " + i)    
             elif "fdps" in i:
                 fdps = i
-    
+    print("YOOO2: " + load_proc)    
     #remove the lines.remove(i). it was skipping lines and it missed FDP for my ZOA config. no need to remove lines, since python will increment on its own. 
     #also added error handling with empty values of load_proc and fdps
-    if load_proc == "" or fdps == "":
+    if load_proc == "" and fdps == "":
         print ("Cannot find MCP and FDP in config file.")
         exit()
     print ("finished find_load_proc(): " +load_proc)
@@ -110,7 +112,7 @@ def find_load_proc():
 
 
 def load_lab():
-
+    #For half and full lab configs
     if 'mcp' in load_proc:
         #print ("This is not a single proc test")
         RELCMD = "echo $(cd /ocean21/bootstrap;pwd -P) | egrep -o '.{1,22}$'"
@@ -142,31 +144,32 @@ def load_lab():
                    stderr=subprocess.PIPE)
             sshLoad.wait() #I'm not sure if this helped excluding but i did earlier. 
             #loadresult = sshLoad.stdout.readlines() excl.uding this. let's see if it will help #1:22 PM next would be to get rid of postfile()
-            print ("Please check the MCP to see if it loaded. Hint: Please make sure startvnc is turned on for sbalc01")
+            print ("Please check the MCP to see if it loaded. Hint: If running on sbalc01, please make sure startvnc is turned on")
             print ("")
             return True
 
-
-    #This is used for single proc.     
-    print("Load_proc: " + load_proc)
-    var = str(check_load_file(load_proc))[2:5]
-    print("Var: " + var)
-    exit()
-    if var == 'No':
-        print("Cannot load_single. Please create a " + "load_" +load_proc + "_cfg.com file and add it to the /ocean21/bootstrap directory and try running script again.")
-        sys.exit()
-    elif var == 'Yes': 
-        load_cmd = 'load.sh ' + load_proc    
-        #print("Load lab from:  " + load_proc)
-        print("Load command: " + load_cmd)
     
-        print("Loading lab.....")    
-        p2 = subprocess.Popen(load_cmd, shell=True, stdout=subprocess.PIPE)
-        p2.wait()
-        if p2.returncode == 0:
-            print("Initial Load command was successfull waiting for lab to come up....")
-            time.sleep(300)
-        print(p2.returncode)    
+    #This is used for single proc.     
+    if 'mcp' not in load_proc:
+        var = str(check_load_file(load_proc))[2:5]
+        print("Var: " + var)
+    #exit()
+        if var == 'No':
+            print("Cannot load_single. Please create a " + "load_" +load_proc + "_cfg.com file and add it to the /ocean21/bootstrap directory and try running script again.")
+            sys.exit()
+        elif var == 'Yes': 
+        
+            load_cmd = 'load_single ' + load_proc    
+            #print("Load lab from:  " + load_proc)
+            print("Load command: " + load_cmd)
+    
+            print("Loading lab.....")    
+            p2 = subprocess.Popen(load_cmd, shell=True, stdout=subprocess.PIPE)
+            p2.wait()
+            if p2.returncode == 0:
+                print("Initial Load command was successfull waiting for lab to come up....")
+                time.sleep(300)
+            print(p2.returncode)    
 
 
 def auto_run_py(tr, proc):
@@ -179,7 +182,7 @@ def auto_run_py(tr, proc):
     
     HOST = "atop@"+proc
     print("Loading from........ " +HOST)
-    #print("COMMAND3: " + COMMAND3)
+    print("COMMAND2: " + COMMAND2)
     ssh = subprocess.Popen(["ssh", "%s" % HOST , COMMAND1, COMMAND2 ],
                    shell=False,
                    stdout=subprocess.PIPE,
@@ -255,15 +258,25 @@ elif test_run == 2:
     post_files()
     load_lab()
     time.sleep(300)
+
+    print("Kicking off " + test + "...............\n")
     #print("starting FDP dp_comp.exe commands @ XX:XX ...")
+    print(time.strftime("%H:%M:%S", time.localtime()))
+    auto_run_py(test_run, fdps)
+
 elif test_run == 3:
     test= "ZNY DIL"
     print(test)
     post_files()
     load_lab()
     time.sleep(300)
-    #get system time here. 
+    print("Kicking off " + test + "...............\n")    
+ 
     #print("starting FDP dp_comp.exe commands @ time: XX:XX ...")
+    print(time.strftime("%H:%M:%S", time.localtime()))
+    auto_run_py(test_run, fdps)
+
+
 elif test_run == 4:
     test= "ZOA ATC"
     post_files()
@@ -274,10 +287,11 @@ elif test_run == 4:
     print("Kicking off " + test + "...............\n")
 
     #Run ZOA ATC test run # and kick of test from FDPS
+    print(time.strftime("%H:%M:%S", time.localtime()))
     auto_run_py(test_run, fdps)
+    print("Auto run py finished!!!! Unloading lab.......\n")    
+    unload_lab()
 
-
-     #   print(test)
 elif test_run == 5:
     test = "ZNY ATC"
     post_files()
@@ -287,6 +301,7 @@ elif test_run == 5:
 
     print("Kicking off " + test + "...............\n")
     #Run loop on ZNY ATC Dictionary
+    print(time.strftime("%H:%M:%S", time.localtime()))
     auto_run_py(test_run, load_proc)
     print("Auto run py finished!!!! Unloading lab.......\n")
     unload_lab()
