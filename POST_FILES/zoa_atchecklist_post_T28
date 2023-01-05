@@ -1,0 +1,79 @@
+
+#!/bin/bash
+
+release_dir="/atop"
+scenarios_dir="../scenario"
+environments_dir="../ENVIRONMENT"
+user_pref_dir="../userpref"
+ecssims_uid="hanksea"
+ecs_admin="/repos/tools/ecs_admin"
+pkg_dir="../PACKAGE"
+scrpt_dir="../SCRIPTS"
+
+
+
+if [[ $# -eq 0 ]];
+then
+ echo;echo "Please provide the config file name...";echo
+ echo "   USAGE: postdist.sh <config file>";echo
+ exit 1
+fi
+config=$1
+
+function fdist_scenario
+{
+ echo "Copying the following scenarios:";ls -l $scenarios_dir | grep -v total
+ for host in $(cat $config)
+ do
+  echo $host...
+  scp -oLogLevel=Error  -p $scenarios_dir/* atop@$host:/ocean21/bootstrap/
+ done
+}
+
+function fdist_SCRIPTS
+{
+ echo "Copying the following scrips:";ls -l $scrpt_dir | grep -v total
+ for host in $(cat $config)
+ do
+  echo $host...
+  scp -oLogLevel=Error  -p $scrpt_dir/* atop@$host:/ocean21/bootstrap/
+ done
+}
+
+function fdist_PACKAGE
+{
+ echo "Copying the following packages:";ls -l $pkg_dir | grep -v total
+ for host in $(cat $config)
+ do
+  echo $host...
+  scp -oLogLevel=Error  -p $pkg_dir/* atop@$host:/ocean21/bootstrap/
+ done
+}
+function fdist_environment_file
+{
+ echo "Copying the following environments:";ls -l $environments_dir | grep -v total
+ for host in $(cat $config)
+ do
+  echo $host...
+  scp -oLogLevel=Error -p $environments_dir/* atop@$host:/ocean21/bootstrap/
+  scp -oLogLevel=Error -p $environments_dir/* atop@$host:/ocean21/user/pref/
+#  scp -p $environments_dir/all.pref root@$host:/ocean21/bootstrap/geopref/
+# CJ- comment out to avoid password requirement  ssh -oLogLevel=Error -t $host -l atop "cd /ocean21/user && sudo find /ocean21/user/pref/ -exec chown atop '{}' \;"
+  ##ssh $host -l root "cd /ocean21/user && chmod 777 pref"
+  go -oLogLevel=Error $host -l atop "cd /ocean21/user && chmod 666 cs_user_db.dat"
+  rsync -a $environments_dir/* atop@$host:/ocean21/user/pref/
+  scp -oLogLevel=Error -p /home/users/gbg/atopesi/ZOA_DIL/userpref/cs_user_db.dat atop@$host:/ocean21/user
+  scp -oLogLevel=Error -p /home/users/gbg/atopesi/ZOA_DIL/userpref/*tar atop@$host:/ocean21/user/pref
+  go -oLogLevel=Error $host "cd /ocean21/user/pref && chmod 666 user_pref.tar"
+  go -oLogLevel=Error $host "cd /ocean21/user && chmod 666 cs_user_db.dat"
+  go -oLogLevel=Error $host "cd /ocean21/user/pref && tar -xf user_pref.tar"
+  go -oLogLevel=Error $host "cd /ocean21/user/pref && rm user_pref.tar"
+ done
+}
+
+
+clear
+fdist_scenario
+fdist_environment_file
+fdist_SCRIPTS
+echo;echo "Finished!!!!...";date
