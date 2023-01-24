@@ -99,8 +99,10 @@ def main(args=None):
 	]
 	
     ZOA_DIL_cmds = [
-        {'cmd' : 'dp_comp.exe'}
-
+        {'cmd' : 'dp_comp.exe', 'inputs' : [b'sysdown\nY\nexit\n'], 'input_wait': 5, 'log': 'sysdown.log'},
+        {'cmd' : 'dp_comp.exe', 'inputs' : [b'run zoadil_config\nsysstart\nexit\n'], 'input_wait': 10, 'log': 'znydil.log'},
+        {'cmd' : 'dp_comp.exe', 'inputs' : [b'run dil_signon.cmd\nexit\n'], 'input_wait': 100, 'log': 'signon.log'},
+        {'cmd' : 'dp_comp.exe', 'inputs' : [b'run zoa_ditl_T29_v2.cmd\n'], 'input_wait': 180, 'log': 'dil.log'}
         ]
 
     #Auto Test Times array
