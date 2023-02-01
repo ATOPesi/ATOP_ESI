@@ -88,15 +88,17 @@ def main(args=None):
         {'cmd' : 'dp_comp.exe', 'inputs' : [b'run at_zoa_aidc2_config\nsysstart\nexit\n'], 'input_wait': 50, 'log' : 'py_setup.log'},
         {'cmd' : 'dp_comp.exe', 'inputs' : [b'run OAK.cmd\n'], 'input_wait': 30, 'log' : 'py_OAK.log', 'test_time' : 0,}
         ]
-    
+       
     ZNY_DIL_cmds = [
         {'cmd' : 'dp_comp.exe', 'inputs' : [b'sysdown\nY\nexit\n'], 'input_wait': 5, 'log': 'sysdown.log'},
         {'cmd' : 'dp_comp.exe', 'inputs' : [b'run znydil_config\nsysstart\nexit\n'], 'input_wait': 10, 'log': 'znydil.log'},
         {'cmd' : 'dp_comp.exe', 'inputs' : [b'run t31_signon.cmd\nexit\n'], 'input_wait': 100, 'log': 'signon.log'},
         {'cmd' : 'dp_comp.exe', 'inputs' : [b'run t31_znydil.cmd\n'], 'input_wait': 180, 'log': 'dil.log'}
-
-
 	]
+
+    ZNY_DIL_cmdsV2 = [ 
+            {'cmd' : 'dp_comp.exe', 'inputs' : [b'sysdown\nY\nsleep 30\nrun znydil_config\nsleep 10\nsysstart\nsleep 150\nt31_signon.cmd\nsleep 20\nrun t31_znydil.cmd\nexit\n'], 'input_wait': 5, 'log' : 'py_ZNY_ATC.log'}
+            ]
 	
     ZOA_DIL_cmds = [
         {'cmd' : 'dp_comp.exe', 'inputs' : [b'sysdown\nY\nexit\n'], 'input_wait': 5, 'log': 'sysdown.log'},
@@ -104,6 +106,11 @@ def main(args=None):
         {'cmd' : 'dp_comp.exe', 'inputs' : [b'run dil_signon.cmd\nexit\n'], 'input_wait': 100, 'log': 'signon.log'},
         {'cmd' : 'dp_comp.exe', 'inputs' : [b'run zoa_ditl_T29_v2.cmd\n'], 'input_wait': 180, 'log': 'dil.log'}
         ]
+
+    ZOA_DIL_cmdsV2 = [
+        {'cmd' : 'dp_comp.exe', 'inputs' : [b'sysdown\nY\nsleep 10\nrun zoadil_config\nsleep 10\nsysstart\nsleep 180\nrun dil_signon.cmd\nsleep 20\nrun zoa_ditl_T29_v2.cmd\nexit\n'], 'input_wait': 5, 'log' : 'py_ZNY_ATC.log'}
+        ]
+
 
     #Auto Test Times array
     
@@ -118,15 +125,15 @@ def main(args=None):
     elif test_run == 2:
         test = "ZOA DIL"
         #print(test)
-        run_time = 160 * 60
-        for c in  ZOA_DIL_cmds:
+        run_time = 10 * 60
+        for c in  ZOA_DIL_cmdsV2:
             ecs_command(c)
 
     elif test_run == 3:
         test= "ZNY DIL"
         print(test)
-        run_time = 150 * 60
-        for c in ZNY_DIL_cmds:
+        run_time = 10 * 60
+        for c in ZNY_DIL_cmdsV2:
             ecs_command(c)
 
     elif test_run == 4:
