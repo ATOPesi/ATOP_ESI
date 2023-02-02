@@ -125,14 +125,14 @@ def main(args=None):
     elif test_run == 2:
         test = "ZOA DIL"
         #10 mins for testing 
-        run_time = 10 * 60
+        run_time = 155 * 60
         for c in  ZOA_DIL_cmdsV2:
             ecs_command(c)
 
     elif test_run == 3:
         test= "ZNY DIL"
         #10 mins for testing
-        run_time = 10 * 60
+        run_time = 145 * 60
         for c in ZNY_DIL_cmdsV2:
             ecs_command(c)
 
