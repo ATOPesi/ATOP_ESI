@@ -138,6 +138,7 @@ def main(args=None):
 
     elif test_run == 4:
         test= "ZOA ATC"
+        run_time = 50 * 60
         for c in  ZOA_ATCL_cmds:
             ecs_command(c) 
         
