@@ -111,7 +111,7 @@ def find_load_proc():
             lineCount += 1
     
 
-        elif load_proc == "" or fdps = "":
+        if load_proc == "" or fdps = "":
             print ("Cannot find MCP or FDP in config file.")
             print ("mcp: ", load_proc)
             print ("fdps: ", fdps)
@@ -119,7 +119,7 @@ def find_load_proc():
   
     
         #error handling for single processor
-        else load_proc == "" and len(lines) == 1:
+        elif load_proc == "" and len(lines) == 1:
             print ("Cannot find cwp and in config file.")
             exit()
 
