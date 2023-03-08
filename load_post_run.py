@@ -111,7 +111,7 @@ def find_load_proc():
             lineCount += 1
     
 
-        if load_proc == "" or fdps = "":
+        if load_proc == "" or fdps == "":
             print ("Cannot find MCP or FDP in config file.")
             print ("mcp: ", load_proc)
             print ("fdps: ", fdps)
