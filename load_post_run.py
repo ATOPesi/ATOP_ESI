@@ -82,32 +82,59 @@ def check_load_file(lp):
 
 def find_load_proc():
     #find the right processor in the config file to load from, then load the lab/box
-    load_proc = ''
-    fdps= '' 
+    load_proc = ""
+    fdps= "" 
+    lineCount = 0
     with open(config) as f:
         lines = f.read().splitlines()
-        print(lines)
+        #print("lines: ", lines) #prints the whole array, aka the whole file: ['cwpa101', 'cwpa102', 'cwpa103', 'cwpa104',] etc
         for i in lines:
             print("For loop: " + i)    
             #if statement finds the fdps nad mcpp in the config file if there is one and assigns the mcpp string to the 'load_proc' variable and the fdps to the 'fdps' variable
             if len(lines) == 1:
                 load_proc = i
-                print("YOOO: " + load_proc)
                 break
             #needs to be more specific for instances that mutliple MCPs. for instance, ZOA has mcppa101 and mcppa102. needs to be mcppa101 since mcppa102 is the PPP position.
-            elif i.startswith('mcp') and i.endswith('1') or 'mcppa101' in i or 'mcppb601' in i:
-                load_proc = i    
-                #print("mcpp " + i)    
-            elif "fdps" in i:
-                fdps = i
-    print("YOOO2: " + load_proc)    
-    #remove the lines.remove(i). it was skipping lines and it missed FDP for my ZOA config. no need to remove lines, since python will increment on its own. 
-    #also added error handling with empty values of load_proc and fdps
-    if load_proc == "" and fdps == "":
-        print ("Cannot find MCP and FDP in config file.")
+            elif load_proc != "" and fdps != "":
+                break
+            #eddie: is this not the same thing? 
+            elif load_proc == "" and i.startswith('mcp') and i.endswith('1'):
+                load_proc = i.strip()    
+            elif load_proc == "" and i.startswith('mcp') and i.endswith('2'):
+                load_proc = i.strip()     
+            elif fdps == "" and "fdps" in i:
+                fdps = i 
+            #lineCount += 1
+    
+
+    #print("The length of lines is: ", lineCount)
+    #error handling for full lab or half lab 
+    #if load_proc == "" or fdps == "" and lineCount > 1:
+        #print("This is the error for a2.config and b2.config for NY")
+     #   if lineCount == 8 and load_proc == "" and fdps != "":
+            #print("This is the case for a2.config and b2.config for NY")
+      #      with open(config) as f:
+       #         for line in f:
+        #            if line.startswith('mcp'):
+         #               load_proc = line.strip()
+
+    if load_proc == "" or fdps == "":
+        print ("Cannot find MCP or FDP in config file.")
+        print ("mcp: ", load_proc)
+        print ("fdps: ", fdps)
         exit()
-    print ("finished find_load_proc(): " +load_proc)
-    print ("finished find_load_proc() fdps var is  " + fdps)
+    
+    #error handling for single processor
+    if load_proc == "" and len(lines) == 1:
+        print ("Cannot find cwp and in config file.")
+        exit()
+
+    print ("finished find_load_proc() load_proc var is " +load_proc)
+    
+    if len(lines) > 1:
+        print ("finished find_load_proc() fdps var is  " + fdps)
+
+    print("end of find_load_proc")
     return load_proc, fdps
 
 
@@ -135,15 +162,13 @@ def load_lab():
             #return True
             print ("Starting lab on "+ load_proc)
             loadconfig = config.replace(".config", "")
-            #DOESN'T WORK LOADCMD = "load -conf {} -platform {} -env test -validate off -noconfirm -auto -on" .format(release, loadconfig)
             LOADCMD = "load -conf {} -platform {} -env test -validate off -noconfirm -dae -recov 3" .format(release, loadconfig)
             print (LOADCMD)
             sshLoad = subprocess.Popen(["ssh", "%s" % MCPHOST , LOADCMD ],
                    shell=False,
                    stdout=subprocess.PIPE,
                    stderr=subprocess.PIPE)
-            sshLoad.wait() #I'm not sure if this helped excluding but i did earlier. 
-            #loadresult = sshLoad.stdout.readlines() excl.uding this. let's see if it will help #1:22 PM next would be to get rid of postfile()
+            sshLoad.wait() 
             print ("Please check the MCP to see if it loaded. Hint: If running on sbalc01, please make sure startvnc is turned on")
             print ("")
             return True
@@ -244,9 +269,10 @@ while True:
         break
 
 load_proc,fdps = find_load_proc()
-print(load_proc + " : " + fdps)
+#print(load_proc + " : " + fdps)
+print("\n")
 #Run appropriate test commands for the user input values 1-5
-
+print("here")
 # Suggestion: instead of defining "test" in each elif, map it before (i think they're called python dictories). 
 # Don't need to do elif each time since they will be running the same commands.
 if test_run == 1:
@@ -263,6 +289,7 @@ elif test_run == 2:
     #print("starting FDP dp_comp.exe commands @ XX:XX ...")
     print(time.strftime("%H:%M:%S", time.localtime()))
     auto_run_py(test_run, fdps)
+    unload_lab()    
 
 elif test_run == 3:
     test= "ZNY DIL"
@@ -275,7 +302,7 @@ elif test_run == 3:
     #print("starting FDP dp_comp.exe commands @ time: XX:XX ...")
     print(time.strftime("%H:%M:%S", time.localtime()))
     auto_run_py(test_run, fdps)
-
+    unload_lab()
 
 elif test_run == 4:
     test= "ZOA ATC"
