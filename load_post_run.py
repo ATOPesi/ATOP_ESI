@@ -84,7 +84,6 @@ def find_load_proc():
     #find the right processor in the config file to load from, then load the lab/box
     load_proc = ""
     fdps= "" 
-    lineCount = 0
     with open(config) as f:
         lines = f.read().splitlines()
         #print("lines: ", lines) #prints the whole array, aka the whole file: ['cwpa101', 'cwpa102', 'cwpa103', 'cwpa104',] etc
@@ -94,29 +93,14 @@ def find_load_proc():
             if len(lines) == 1:
                 load_proc = i
                 break
-            #needs to be more specific for instances that mutliple MCPs. for instance, ZOA has mcppa101 and mcppa102. needs to be mcppa101 since mcppa102 is the PPP position.
             elif load_proc != "" and fdps != "":
                 break
-            #eddie: is this not the same thing? 
             elif load_proc == "" and i.startswith('mcp') and i.endswith('1'):
                 load_proc = i.strip()    
             elif load_proc == "" and i.startswith('mcp') and i.endswith('2'):
                 load_proc = i.strip()     
             elif fdps == "" and "fdps" in i:
                 fdps = i 
-            #lineCount += 1
-    
-
-    #print("The length of lines is: ", lineCount)
-    #error handling for full lab or half lab 
-    #if load_proc == "" or fdps == "" and lineCount > 1:
-        #print("This is the error for a2.config and b2.config for NY")
-     #   if lineCount == 8 and load_proc == "" and fdps != "":
-            #print("This is the case for a2.config and b2.config for NY")
-      #      with open(config) as f:
-       #         for line in f:
-        #            if line.startswith('mcp'):
-         #               load_proc = line.strip()
 
     if load_proc == "" or fdps == "":
         print ("Cannot find MCP or FDP in config file.")
