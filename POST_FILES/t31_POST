@@ -1,0 +1,69 @@
+
+#!/bin/bash
+
+release_dir="/atop"
+scenarios_dir="../scenario/T31"          
+environments_dir="../ENVIRONMENT"
+user_pref_dir="../userpref"
+dist_dir="../DIST"
+
+if [[ $# -eq 0 ]];
+then
+ echo;echo "Please provide the config file name...";echo
+ echo "   USAGE: postdist.ksh <config file>";echo
+ exit 1
+fi
+config=$1
+
+function fdist_scenario
+{
+ echo "Copying the following scenarios:";ls -l $scenarios_dir | grep -v total
+ for host in $(cat $config)
+ do
+  echo $host...
+  scp -p $scenarios_dir/* atop@$host:/ocean21/bootstrap/
+ done
+}
+
+function fdist_environment_file
+{
+ echo "Copying the following environments:";ls -l $environments_dir | grep -v total
+ for host in $(cat $config)
+ do
+  echo $host...
+  scp -p $environments_dir/* atop@$host:/ocean21/bootstrap/
+#  scp -p $environments_dir/all.pref atop@$host:/ocean21/bootstrap/geopref/
+ done
+}
+
+function fdist_upref_file
+{
+ echo "Copying the following user pref:";ls -l $user_pref_dir | grep -v total
+ for host in $(cat $config)
+ do
+  echo $host...
+  scp -p $user_pref_dir/* atop@$host:/ocean21/bootstrap/
+#  scp -p $environments_dir/all.pref atop@$host:/ocean21/bootstrap/geopref/
+  done
+   }
+
+function dist_file
+{
+ echo "Copying the following DIST files:";ls -l $dist_dir | grep -v total
+ for host in $(cat $config)
+ do
+  echo $host...
+  scp -p $dist_dir/* atop@$host:/ocean21/bootstrap/
+#  scp -p $environments_dir/all.pref atop@$host:/ocean21/bootstrap/geopref/
+  done
+   }
+   
+
+
+clear
+fdist_scenario
+fdist_environment_file
+fdist_upref_file
+dist_file
+echo;echo "Finished!!!!...";date
+

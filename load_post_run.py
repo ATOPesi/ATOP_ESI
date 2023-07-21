@@ -82,13 +82,15 @@ def check_load_file(lp):
 
 def find_load_proc():
     #find the right processor in the config file to load from, then load the lab/box
+
     load_proc = ""
     fdps= "" 
+
     with open(config) as f:
         lines = f.read().splitlines()
         #print("lines: ", lines) #prints the whole array, aka the whole file: ['cwpa101', 'cwpa102', 'cwpa103', 'cwpa104',] etc
         for i in lines:
-            print("For loop: " + i)    
+            #print("For loop: " + i)    
             #if statement finds the fdps nad mcpp in the config file if there is one and assigns the mcpp string to the 'load_proc' variable and the fdps to the 'fdps' variable
             if len(lines) == 1:
                 load_proc = i
@@ -112,6 +114,8 @@ def find_load_proc():
     
     #error handling for single processor
     if load_proc == "" and len(lines) == 1:
+ 
+
         print ("Cannot find cwp and in config file.")
         exit()
 
