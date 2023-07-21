@@ -82,9 +82,10 @@ def check_load_file(lp):
 
 def find_load_proc():
     #find the right processor in the config file to load from, then load the lab/box
-    load_proc = ''
-    fdps= '' 
-    lineCount = 0
+
+    load_proc = ""
+    fdps= "" 
+
     with open(config) as f:
         lines = f.read().splitlines()
         #print("lines: ", lines) #prints the whole array, aka the whole file: ['cwpa101', 'cwpa102', 'cwpa103', 'cwpa104',] etc
@@ -94,38 +95,27 @@ def find_load_proc():
             if len(lines) == 1:
                 load_proc = i
                 break
-            #needs to be more specific for instances that mutliple MCPs. for instance, ZOA has mcppa101 and mcppa102. needs to be mcppa101 since mcppa102 is the PPP position.
-
-            #eddie: is this not the same thing? 
-            #elif i.startswith('mcp') and i.endswith('1') or 'mcppa101' in i or 'mcppb601' in i:
-
-            elif i.startswith('mcp') and i.endswith('1'):
+            elif load_proc != "" and fdps != "":
+                break
+            elif load_proc == "" and i.startswith('mcp') and i.endswith('1'):
                 load_proc = i.strip()    
-                 
-            elif "fdps" in i:
+            elif load_proc == "" and i.startswith('mcp') and i.endswith('2'):
+                load_proc = i.strip()
+            elif load_proc == "" and i.startswith('mcp'):
+                load_proc = i.strip()     
+            elif fdps == "" and "fdps" in i:
                 fdps = i 
-            lineCount += 1
-    
 
-    print("The length of lines is: ", lineCount)
-    #error handling for full lab or half lab 
-    if load_proc == "" or fdps == "" and lineCount > 1:
-        #print("This is the error for a2.config and b2.config for NY")
-        if lineCount == 8 and load_proc == "" and fdps != "":
-            #print("This is the case for a2.config and b2.config for NY")
-            with open(config) as f:
-                for line in f:
-                    if line.startswith('mcp'):
-                        load_proc = line.strip()
-
-        else:
-            print ("Cannot find MCP or FDP in config file.")
-            print ("mcp: ", load_proc)
-            print ("fdps: ", fdps)
-            exit()
+    if load_proc == "" or fdps == "":
+        print ("Cannot find MCP or FDP in config file.")
+        print ("mcp: ", load_proc)
+        print ("fdps: ", fdps)
+        exit()
     
     #error handling for single processor
-    elif load_proc == "" and len(lines) == 1:
+    if load_proc == "" and len(lines) == 1:
+ 
+
         print ("Cannot find cwp and in config file.")
         exit()
 
@@ -289,6 +279,7 @@ elif test_run == 2:
     #print("starting FDP dp_comp.exe commands @ XX:XX ...")
     print(time.strftime("%H:%M:%S", time.localtime()))
     auto_run_py(test_run, fdps)
+    unload_lab()    
 
 elif test_run == 3:
     test= "ZNY DIL"
@@ -301,7 +292,7 @@ elif test_run == 3:
     #print("starting FDP dp_comp.exe commands @ time: XX:XX ...")
     print(time.strftime("%H:%M:%S", time.localtime()))
     auto_run_py(test_run, fdps)
-
+    unload_lab()
 
 elif test_run == 4:
     test= "ZOA ATC"
